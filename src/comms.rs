@@ -7,7 +7,7 @@ use crate::{encryption, meta::*};
 pub struct Request {
     pub version: String,
     pub kind: RequestKind,
-    pub headers: Headers,
+    pub headers: HashMap<HeaderKind, String>,
     pub body: Option<String>,
 }
 
@@ -72,7 +72,7 @@ impl TryFrom<String> for Request {
 #[derive(Debug)]
 pub struct Response {
     status: StatusCode,
-    headers: Headers,
+    headers: HashMap<ResponseHeaderKind, String>,
     body: Option<String>,
 }
 
@@ -90,6 +90,10 @@ impl Response {
             headers: HashMap::new(),
             body: Some(body.into()),
         }
+    }
+    pub fn header(mut self, kind: ResponseHeaderKind, value: String) -> Self {
+        self.headers.insert(kind, value);
+        self
     }
 }
 
