@@ -15,6 +15,7 @@ meta::headers! (
     Length = "length",       // body length in bytes
     Pubkey = "pubkey",       // friends
     Elaboration = "elaboration",
+    Encrypted = "encrypted", // is message encrypted?
 );
 
 meta::headers! (
@@ -157,6 +158,11 @@ meta::request_kinds! {
     Send = {                // send message to server
         name: "send",
         required: [To, Session, Length],
+        possible_responses: [MessageSent]
+    },
+    Sealed = {                // send message to server
+        name: "sealed",
+        required: [To, Encrypted, Length],
         possible_responses: [MessageSent]
     },
     HashAuth = {            // hash-based authentication

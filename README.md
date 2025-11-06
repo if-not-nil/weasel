@@ -46,9 +46,6 @@ usually, the certificates are done via third-party authorities. it's a great mod
 ### message exchange
 messages could be exchanged as u2s2s2u (on different servers), u2s2u (on the same server), or a2s2u (sealed message)
 
-- u2s2s2u:
->  
-
 ### friend servers
 a server will have a list of usually 8-16 trusted friends. they have 2-way encryption and could act as proxies
 
@@ -188,10 +185,17 @@ aasdfasdfasd f\n\n\n\n\ntimestamp: 1\nfrom: bobby#example\nlength: 123123\nrekt
 
 
 timestamp: [unix timestamp]
-from: !sealed // all usernames starting with a bang are special use
+from: !plain_sealed // all usernames starting with a bang are special use
 length: 2
 
 yo
+
+
+timestamp: [unix timestamp]
+from: !sealed // all usernames starting with a bang are special use
+length: usize
+
+[sealed message]
 ```
 
 ### friend system
@@ -297,5 +301,6 @@ at: 1.0.0.0:1337
     ```
 
 # future maybes
-- exchanging pubkeys through friends
+- exchanging pubkeys through friend servers
 - servers with groupchats that have channels which could be hosted on the same machine as a normal communication server
+- change true/false to y/n for no reason
