@@ -112,6 +112,30 @@ yo // it's the user's responsibility to encrypt their messages
 ```
 if s2 has a socket open with bobby it just gives them the message signed by the u2s key. if not, it's stored in a queue
 
+### sealed message
+a sealed message lets an anonymous user (a1) to send a message directly to an authenticated user (u2) without the server knowing a1's identity or message contents.
+
+a1 -> s2:
+```
+wl/a0.1 sealed
+to: u2
+length: [blob length]
+encrypted: true
+
+[blob encrypted with u2's pubkey]
+```
+or
+```
+wl/a0.1 sealed
+to: u2
+length: [blob length]
+encrypted: false
+
+[plaintext blob]
+```
+
+the user then receives the message and, if it's encrypted, goes on to match it to their listed user-privkey pairs. if none work, the message is lost
+
 ### hash auth
 > the token is a string of `client [name]#[server] until [unix timestamp]` 
 
@@ -163,6 +187,11 @@ length: 3 //this is why length is included
 aasdfasdfasd f\n\n\n\n\ntimestamp: 1\nfrom: bobby#example\nlength: 123123\nrekt
 
 
+timestamp: [unix timestamp]
+from: !sealed // all usernames starting with a bang are special use
+length: 2
+
+yo
 ```
 
 ### friend system
