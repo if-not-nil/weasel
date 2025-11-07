@@ -1,6 +1,7 @@
 mod meta;
 mod request;
 mod response;
+mod crypt;
 pub use request::Request;
 pub use response::Response;
 
@@ -205,4 +206,9 @@ meta::request_kinds! {
         required: [Session],
         possible_responses: [Teapot, AnnouncementFound] // friends list and info
     },
+    FriendUserMoved = { // encrypted with a friend key
+        name: "user announcement",
+        required: [], // client: jebediah#server2; to: jebediah#server5
+        possible_responses: [Teapot]
+    }
 }

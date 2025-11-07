@@ -222,7 +222,7 @@ pubkey: [friend pubkey]
 ```
 
 ### info request
-a client may want to know how to use a certain server
+a server's only identification is its key - if messages are signed with it, you can verify its authenticity
 -> anon client:
 ```
 0.1 info
@@ -230,8 +230,9 @@ a client may want to know how to use a certain server
 <- server:
 ```
 0.1 status 4: info given
-max-length: 64000
 version: 0.1 // assuming backwards-compatibility
+max-length: 64000
+signature: ALGO:[signature]
 ```
 
 it's good to check up on announcements once in a while. you'll update your list of friends and see what the admin has to say
@@ -244,7 +245,9 @@ session: [session]
 <- server:
 ```
 0.1 status 4: info given
+version: 0.1 // assuming backwards-compatibility
 max-length: 64000
+signature: ALGO:[signature]
 friends: [
     { addr: 1.0.0.0:1337, key: BASE64(your key) },
     { addr: 1.0.0.0:1338, key: BASE64(your key) },
@@ -270,6 +273,10 @@ OR AND
 forget: please
 OR AND
 ```
+
+same with a user's account. since a user exchanges keypairs with a server once they become friends, they have authentication on the friend server. once the server their account is on goes down,
+
+
 anyone willing could easily send junk here twice/once a day at utc 0 or utc 12 for hygiene to obscure meaningful announcements to anyone in the middle. if an actual person wants to do it, they'll know sending it at utc 0 is safest
 
 <- server to anon:
@@ -300,7 +307,23 @@ at: 1.0.0.0:1337
     wl/a0.1 status -70: announcement not found
     ```
 
+a user may want to change their ip, too. they would make a request to their parent server's friend server, encrypted and signed with a previously acquired friend key
+
+-> jebediah#server5 to s1's friend server:
+```
+wl/a0.1 user announcement
+client: jebediah
+type: moved
+to: jebediah#server5
+```
+
+## encryption
+idk
+
 # future maybes
 - exchanging pubkeys through friend servers
 - servers with groupchats that have channels which could be hosted on the same machine as a normal communication server
 - change true/false to y/n for no reason
+- public server rings/listings
+
+
