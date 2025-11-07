@@ -20,18 +20,18 @@ any message can be sent between an anonymous user (a), a server (s), and an auth
 
 response example:
 ```
-wl/a0.1 status 0: teapot status // protocol version and status
+lung/a0.1 status 0: teapot status // protocol version and status
 ok: true // a header
 length: 34 // anything with body must include a length header
 
 hello! this is an example response // body, in this case just utf-8
 ```
-the headline could also look like `wl/a0.1 0` in future versions
+the headline could also look like `lung/a0.1 0` in future versions
 it should just parse the version until the first space and then look for an integer
 
 request example:
 ```
-wl/a0.1 send
+lung/a0.1 send
 to: user#server
 session: token
 length: 2
@@ -63,11 +63,11 @@ an IP change is broadcasted via an a2s request
 a certificate request is the only non-encrypted request you can have
 -> client:
 ```
-wl/a0.1 certificate
+lung/a0.1 certificate
 ```
 <- server:
 ```
-wl/a0.1 status 50: certificate given
+lung/a0.1 status 50: certificate given
 algo: x25519
 pubkey: [server's pubkey]
 ```
@@ -78,7 +78,7 @@ the session body is none of the server's business, it can be encrypted with anyt
 
 -> client:
 ```
-wl/a0.1 send
+lung/a0.1 send
 to: bobby#s1
 session: [token]
 length: 2
@@ -87,7 +87,7 @@ yo // it's the user's responsibility to encrypt their messages
 ```
 <- server:
 ```
-wl/a0.1 status 1: message sent
+lung/a0.1 status 1: message sent
 ok: true
 timestamp: [unix timestamp]
 message-id: [uuid v4]
@@ -97,8 +97,8 @@ then comes the message relay
 
 s1 -> s2:
 ```
-wl/a0.1 deliver
-from: jebediah#s1
+lung/a0.1 deliver
+from: jerma#s1
 to: bobby#s2
 sig: SIGN(server1_priv, message_id)
 timestamp: [original unix timestamp]
@@ -114,7 +114,7 @@ a sealed message lets an anonymous user (a1) to send a message directly to an au
 
 a1 -> s2:
 ```
-wl/a0.1 sealed
+lung/a0.1 sealed
 to: u2
 length: [blob length]
 encrypted: true
@@ -123,7 +123,7 @@ encrypted: true
 ```
 or
 ```
-wl/a0.1 sealed
+lung/a0.1 sealed
 to: u2
 length: [blob length]
 encrypted: false
@@ -138,22 +138,22 @@ the user then receives the message and, if it's encrypted, goes on to match it t
 
 -> client:
 ```
-wl/a0.1 hash auth
-client: jebediah
+lung/a0.1 hash auth
+client: jerma
 hash: SHA256(password+":"+server_nonce)
 ```
 <- server:
 
 - success:
     ```
-    wl/a0.1 status 60: hash accepted
+    lung/a0.1 status 60: hash accepted
     ok: true
     session: [token]
     until: UNIX_TIMESTAMP(1 week from now)
     ```
 - failure:
     ```
-    wl/a0.1 status -60: hash not accepted
+    lung/a0.1 status -60: hash not accepted
     ```
 
 all u2s requests use the session header now
@@ -163,12 +163,12 @@ if you see you're running out, you just request a new one via the same endpoint
 ### message retrieval
 -> client:
 ```
-wl/a0.1 anything?
+lung/a0.1 anything?
 session: [token]
 ```
 <- server
 ```
-wl/a0.1 status 5: offline messages
+lung/a0.1 status 5: offline messages
 count: 2
 
 timestamp: [unix timestamp]
@@ -203,21 +203,21 @@ a server can request another server to be friends and they'll have the option of
 
 s1 -> s2:
 ```
-wl/a0.1 friend request
+lung/a0.1 friend request
 message: 13:BASE64(pls) // length-message
 ```
 the server will then store that until the admin decides whether to accept it or not
 
 s1 <- s2:
 ```
-wl/a0.1 friend made
+lung/a0.1 friend made
 pubkey: [friend pubkey] 
 ```
 s1 checks if they asked and then 
 
 s1 -> s2:
 ```
-wl/a0.1 friend made
+lung/a0.1 friend made
 pubkey: [friend pubkey]
 ```
 
@@ -253,7 +253,7 @@ friends: [
     { addr: 1.0.0.0:1338, key: BASE64(your key) },
 ]
 current-session-valid-until: 1731515023
-name: BASE64(jebediah's server)
+name: BASE64(jerma's server)
 last-mail-timestamp: [unix timestamp]
 ```
 the client then checks what it stores as the last-mail message and then asks the server for offline messages at `!self-[client's last mail]`
@@ -263,7 +263,7 @@ it should not be difficult at all to change a server's ip
 
 -> anon to server:
 ```
-wl/a0.1 announcement
+lung/a0.1 announcement
 from: [friend id encrypted with a pubkey]
 [encrypted with the friend key]
 new-ip: 2.0.0.0:1337
@@ -288,14 +288,14 @@ then a client may try to reach 1.0.0.0 but it can't find it. they'll have stored
 
 -> client to friend 1-16 until success:
 ```
-wl/a0.1 anyone
+lung/a0.1 anyone
 at: 1.0.0.0:1337
 ```
 
 <- friend:
 - success:
     ```
-    wl/a0.1 status 70: announcement found
+    lung/a0.1 status 70: announcement found
     type: moved
     elaboration: 2.0.0.0:1337
     OR
@@ -304,17 +304,17 @@ at: 1.0.0.0:1337
     ```
 - failure:
     ```
-    wl/a0.1 status -70: announcement not found
+    lung/a0.1 status -70: announcement not found
     ```
 
 a user may want to change their ip, too. they would make a request to their parent server's friend server, encrypted and signed with a previously acquired friend key
 
--> jebediah#server5 to s1's friend server:
+-> jerma#server5 to s1's friend server:
 ```
-wl/a0.1 user announcement
-client: jebediah
+lung/a0.1 user announcement
+client: jerma
 type: moved
-to: jebediah#server5
+to: jerma#server5
 ```
 
 ## encryption

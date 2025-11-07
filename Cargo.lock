@@ -72,6 +72,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2874a2af47a2325c2001a6e6fad9b16a53b802102b528163885171cf92b15976"
 
 [[package]]
+name = "lung"
+version = "0.0.1-dev"
+dependencies = [
+ "ed25519-compact",
+ "rand",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -220,14 +228,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "76f218a38c84bcb33c25ec7059b07847d465ce0e0a76b995e134a45adcb6af76"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "weasel"
-version = "0.0.1-dev"
-dependencies = [
- "ed25519-compact",
- "rand",
 ]
 
 [[package]]

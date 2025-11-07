@@ -1,4 +1,4 @@
-use weasel::Server;
+use lung::Server;
 
 fn main() {
     // println!("{:?}", shared)
