@@ -19,11 +19,11 @@ any message can be sent between an anonymous user (a), a server (s), and an auth
 
 response example:
 ```
-lung/a0.1 status 0: teapot status // protocol version and status
-ok: true // a header
-length: 34 // anything with body must include a length header
+lung/a0.1 status 0: teapot status # protocol version and status
+ok: true # a header
+length: 34 # anything with body must include a length header
 
-hello! this is an example response // body, in this case just utf-8
+hello! this is an example response # body, in this case just utf-8
 ```
 the headline could also look like `lung/a0.1 0` in future versions
 it should just parse the version until the first space and then look for an integer
@@ -83,7 +83,7 @@ to: bobby#s1
 session: [token]
 length: 2
 
-yo // it's the user's responsibility to encrypt their messages
+yo # it's the user's responsibility to encrypt their messages
 ```
 <- server:
 ```
@@ -105,7 +105,7 @@ timestamp: [original unix timestamp]
 message-id: [uuid v4]
 body-hash: SHA256(base64(body))
 
-yo // it's the user's responsibility to encrypt their messages
+yo # it's the user's responsibility to encrypt their messages
 ```
 if s2 has a socket open with bobby it just gives them the message signed by the u2s key. if not, it's stored in a queue
 
@@ -179,39 +179,39 @@ yo
 
 timestamp: [unix timestamp]
 from: bobby#s1
-length: 3 //this is why length is included
+length: 3 #this is why length is included
 
 aasdfasdfasd f\n\n\n\n\ntimestamp: 1\nfrom: bobby#example\nlength: 123123\nrekt
 
 
 timestamp: [unix timestamp]
-from: !plain_sealed // all usernames starting with a bang are special use
+from: !plain_sealed # all usernames starting with a bang are special use
 length: 2
 
 yo
 
 
 timestamp: [unix timestamp]
-from: !sealed // all usernames starting with a bang are special use
+from: !sealed # all usernames starting with a bang are special use
 length: usize
 
 [sealed message]
 ```
 
 ### friend system
-servers may establish trusted links called friends to route messages, share announcements and for key exchange
+servers may establish trusted links called friends to route messages, share notifications and for key exchange
 
 they're two-way and signed, each server stores a local list of friends. they're equal peers with ho hierarchy
 
 - friend records:
     each server has a friend record, which is a signed blob blob with its identity and reachable addresses
-    ```
+    ```yaml
     a0.1 lung data: friend-record
     server: s1
     pubkey: BASE64(ed25519 pubkey)
     addrs: ["1.2.3.4:1337", "s1.ddns.net:1337"]
-    seq: 17 // increments on change
-    expires: 1732000000 // unix timestamp, optional ttl
+    seq: 17 # increments on change
+    expires: 1732000000 # unix timestamp, optional ttl
     sig: SIGN(server_priv, SHA256(all above))
     ```
 - friend requests:
@@ -220,7 +220,7 @@ they're two-way and signed, each server stores a local list of friends. they're 
     s2 may store those until the admin makes up their mind
 
     s1 -> s2:
-    ```
+    ```yaml
     lung/a0.1 friend request
     from: s1
     seq: 1
@@ -288,7 +288,7 @@ they're two-way and signed, each server stores a local list of friends. they're 
     server then stores the pubkey and later and verifies that all future signed records match it
 - friend types:
     `trusted` - two-way routing & key verification
-    `observer` - receives announcements only
+    `observer` - receives notifications only
 
 ### info request
 a server's only identification is its key - if messages are signed with it, you can verify its authenticity
@@ -299,12 +299,12 @@ a server's only identification is its key - if messages are signed with it, you 
 <- server:
 ```
 0.1 status 4: info given
-version: 0.1 // assuming backwards-compatibility
+version: 0.1 # assuming backwards-compatibility
 max-length: 64000
 signature: ALGO:[signature]
 ```
 
-it's good to check up on announcements once in a while. you'll update your list of friends and see what the admin has to say
+it's good to check up on notifications once in a while. you'll update your list of friends and see what the admin has to say
 
 -> authenticated client:
 ```
@@ -312,9 +312,9 @@ it's good to check up on announcements once in a while. you'll update your list 
 session: [session]
 ```
 <- server:
-```
+```yaml
 0.1 status 4: info given
-version: 0.1 // assuming backwards-compatibility
+version: 0.1 # assuming backwards-compatibility
 max-length: 64000
 signature: ALGO:[signature]
 friends: [
@@ -327,12 +327,12 @@ last-mail-timestamp: [unix timestamp]
 ```
 the client then checks what it stores as the last-mail message and then asks the server for offline messages at `!self-[client's last mail]`
 
-### server announcement
+### server notification
 it should not be difficult at all to change a server's ip
 
 -> anon to server:
 ```
-lung/a0.1 announcement
+lung/a0.1 notification
 from: [friend id encrypted with a pubkey]
 [encrypted with the friend key]
 new-ip: 2.0.0.0:1337
@@ -342,7 +342,7 @@ OR AND
 forget: please
 OR AND
 ```
-anyone willing could easily send junk here twice/once a day at utc 0 or utc 12 for hygiene to obscure meaningful announcements to anyone in the middle. if an actual person wants to do it, they'll know sending it at utc 0 is safest
+anyone willing could easily send junk here twice/once a day at utc 0 or utc 12 for hygiene to obscure meaningful notifications to anyone in the middle. if an actual person wants to do it, they'll know sending it at utc 0 is safest
 
 then a client may try to reach 1.0.0.0 but it can't find it. they'll have stored the server's friends and exchanged keys with them prior so
 
@@ -355,7 +355,7 @@ at: 1.0.0.0:1337
 <- friend:
 - success:
     ```
-    lung/a0.1 status 70: announcement found
+    lung/a0.1 status 70: notification found
     type: moved
     elaboration: 2.0.0.0:1337
     OR
@@ -364,14 +364,14 @@ at: 1.0.0.0:1337
     ```
 - failure:
     ```
-    lung/a0.1 status -70: announcement not found
+    lung/a0.1 status -70: notification not found
     ```
-### user announcement
+### user notification
 a user may want to change their id, too. they would make a request to their parent server's friend server
 
 -> jerma#server5 to s1's friend server:
 ```
-lung/a0.1 user announcement
+lung/a0.1 user notification
 client: jerma
 type: moved
 to: jerma#server5
@@ -389,7 +389,7 @@ idk
 - change true/false to y/n for no reason
 - public server rings/listings
 - turn the whole thing into a modular system
-    servers will be purely nodes for authentication, data storage and sending arbitrary data back and forth, but the rest will be a composition of modules
+    servers will be purely nodes for authentication and communication, data storage and sending arbitrary data back and forth, but the rest will be a composition of modules
     examples:
         - lung-message-transfer@0.1, for message transfer. spec request will yield a documentation for how you'd make requests of `lung/a0.1 mod/lms\nto: recipient`
         - lung-public-feed@0.1, for public feeds. spec request will yield a documentation for how you'd make requests of `lung/a0.1 mod/lpf \n user: jerma#s1 \n page: 0 \n count: 15`
